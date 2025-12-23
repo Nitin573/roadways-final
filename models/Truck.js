@@ -2,13 +2,14 @@ const mongoose = require('mongoose');
 
 const TruckSchema = new mongoose.Schema({
     truckNo: String,
+    date: String,            // ✅ Nayi Cheez: Tareekh
     driver: String,
-    driverContact: String,   // ✅ Naya Field: Driver Mobile
+    driverContact: String,
     startLocation: String,
     endLocation: String,
     status: String,
-    commissionTotal: Number, // ✅ Naya Field: Total Commission (Kitna tha)
-    commissionPaid: Number   // ✅ Naya Field: Paid (Kitna diya)
+    commissionTotal: Number,
+    commissionPaid: Number
 });
 
 module.exports = mongoose.model('Truck', TruckSchema);
