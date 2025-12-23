@@ -106,6 +106,27 @@ app.put('/api/update-truck/:id', async (req, res) => {
     }
 });
 
+// ... baaki routes ke neeche ...
+
+// 🔍 6. AUTO-FILL ROUTE (Truck Number se purani details lao)
+app.get('/api/get-last-trip/:truckNo', async (req, res) => {
+    try {
+        await connectDB();
+        const { truckNo } = req.params;
+        
+        // Sabse aakhri entry dhundo (sort by _id descending)
+        const lastTrip = await Truck.findOne({ truckNo: truckNo }).sort({ _id: -1 });
+        
+        if (lastTrip) {
+            res.json(lastTrip);
+        } else {
+            res.status(404).json({ message: "No history found" });
+        }
+    } catch (err) {
+        res.status(500).json({ error: "Search failed" });
+    }
+});
+
 // Server Start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
