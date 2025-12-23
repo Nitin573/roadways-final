@@ -16,10 +16,13 @@ app.use(cors({
 app.use(express.json());
 
 // ✅ DATABASE CONNECTION
-// Aapka Naya Link + Password (rahul123) + Database Name (roadways_db)
 const MONGO_URL = "mongodb+srv://rahul:rahul123@cluster0.9au95i1.mongodb.net/roadways_db?appName=Cluster0";
 
-mongoose.connect(MONGO_URL)
+// 🔥 YAHAN CHANGE KIYA HAI: Timeout settings add ki hain
+mongoose.connect(MONGO_URL, {
+    serverSelectionTimeoutMS: 5000, // 5 second tak server dhundega
+    socketTimeoutMS: 45000,         // Slow internet par connection nahi todega
+})
     .then(() => console.log("✅ Cloud DB Connected Successfully!"))
     .catch((err) => console.log("❌ DB Connection Error:", err));
 
@@ -37,6 +40,7 @@ app.post('/api/signup', async (req, res) => {
         await newUser.save();
         res.status(201).json({ message: "Account Created Successfully!" });
     } catch (err) {
+        console.error("Signup Error:", err); // Error console pe print hoga
         res.status(500).json({ error: "Signup Failed" });
     }
 });
