@@ -91,6 +91,20 @@ app.get('/api/get-trucks', async (req, res) => {
         res.status(500).json({ error: "Failed to fetch trucks" });
     }
 });
+// ... add-truck code ke neeche paste karein ...
+
+// 🚛 5. UPDATE TRUCK ROUTE (Edit karne ke liye)
+app.put('/api/update-truck/:id', async (req, res) => {
+    try {
+        await connectDB();
+        const { id } = req.params;
+        // Jo bhi naya data aayega, usse purana update ho jayega
+        const updatedTruck = await Truck.findByIdAndUpdate(id, req.body, { new: true });
+        res.json(updatedTruck);
+    } catch (err) {
+        res.status(500).json({ error: "Update failed: " + err.message });
+    }
+});
 
 // Server Start
 const PORT = process.env.PORT || 5000;
