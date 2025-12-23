@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const User = require('./models/User');
-const Truck = require('./models/Truck');
+const Truck = require('./models/Truck'); // Truck Model Import kiya
 
 const app = express();
 
@@ -17,23 +17,20 @@ app.use(express.json());
 
 const MONGO_URL = "mongodb+srv://rahul:rahul123@cluster0.9au95i1.mongodb.net/roadways_db?appName=Cluster0";
 
-// 🔥 SMART DATABASE CONNECTION (Vercel Fix)
-// Yeh variable connection ko yaad rakhega
+// 🔥 SMART DATABASE CONNECTION
 let isConnected = false;
 
 const connectDB = async () => {
-    if (isConnected) {
-        return; // Agar pehle se connected hai, toh wahi use karo
-    }
+    if (isConnected) return;
     try {
         await mongoose.connect(MONGO_URL, {
             serverSelectionTimeoutMS: 5000,
         });
         isConnected = true;
-        console.log("✅ New Database Connection Established");
+        console.log("✅ Database Connected");
     } catch (error) {
-        console.log("❌ Database Connection Failed:", error);
-        throw error; // Error aage bhejo taaki request fail ho jaye
+        console.log("❌ Database Error:", error);
+        throw error;
     }
 };
 
@@ -41,11 +38,10 @@ const connectDB = async () => {
 
 app.get('/', (req, res) => res.send("Roadways Backend is Live! 🚀"));
 
-// Signup Route
+// 1. Signup Route
 app.post('/api/signup', async (req, res) => {
     try {
-        await connectDB(); // 🛑 PEHLE DATABASE SE CONNECT KARO, PHIR AAGE BADHO
-
+        await connectDB();
         const { name, email, password } = req.body;
         const existing = await User.findOne({ email });
         if (existing) return res.status(400).json({ error: "Email already exists" });
@@ -54,16 +50,14 @@ app.post('/api/signup', async (req, res) => {
         await newUser.save();
         res.status(201).json({ message: "Account Created Successfully!" });
     } catch (err) {
-        console.error("Signup Error:", err);
-        res.status(500).json({ error: "Server Error: " + err.message });
+        res.status(500).json({ error: "Signup Failed: " + err.message });
     }
 });
 
-// Login Route
+// 2. Login Route
 app.post('/api/login', async (req, res) => {
     try {
-        await connectDB(); // 🛑 LOGIN SE PEHLE BHI CONNECT KARO
-
+        await connectDB();
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user || user.password !== password) {
@@ -71,12 +65,34 @@ app.post('/api/login', async (req, res) => {
         }
         res.json({ message: "Login Success", user: user.name });
     } catch (err) {
-        console.error("Login Error:", err);
-        res.status(500).json({ error: "Server Error: " + err.message });
+        res.status(500).json({ error: "Login Error: " + err.message });
     }
 });
 
-// Local Server Start
+// 🚛 3. ADD TRUCK ROUTE (Naya)
+app.post('/api/add-truck', async (req, res) => {
+    try {
+        await connectDB(); // Database check
+        const newTruck = new Truck(req.body); // Frontend se jo data aaya use lo
+        await newTruck.save(); // Save karo
+        res.status(201).json({ message: "Truck Added Successfully!" });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to add truck: " + err.message });
+    }
+});
+
+// 🚛 4. GET ALL TRUCKS ROUTE (Naya)
+app.get('/api/get-trucks', async (req, res) => {
+    try {
+        await connectDB();
+        const trucks = await Truck.find(); // Saare trucks dhundo
+        res.json(trucks); // Frontend ko bhejo
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch trucks" });
+    }
+});
+
+// Server Start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
