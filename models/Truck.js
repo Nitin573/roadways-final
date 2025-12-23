@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const TruckSchema = new mongoose.Schema({
     truckNo: String,
-    ownerName: String,       // ✅ Naya Field: Malik ka Naam
+    ownerName: String,
+    ownerContact: String,    // ✅ Naya Field: Malik ka Mobile
     date: String,
     driver: String,
     driverContact: String,
